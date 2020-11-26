@@ -1,0 +1,13 @@
+[package]
+name = "compare_hash"
+version = "0.2.0"
+authors = ["arthmis <arthmis20@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "2.33.0"
+anyhow = "1"
+ring = "0.16.18"
+data-encoding = "2.3.1"
