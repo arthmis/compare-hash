@@ -1,7 +1,7 @@
-use std::path::PathBuf;
+use std::{io::BufReader, path::PathBuf, io::Read};
 
 use clap::{Arg, App, crate_version};
-use data_encoding::{BASE32, BASE64, HEXLOWER, HEXLOWER_PERMISSIVE, HEXUPPER};
+use data_encoding::HEXLOWER;
 use ring::digest::Context;
 
 #[derive(Debug)]
@@ -49,33 +49,34 @@ fn main() -> Result<(), anyhow::Error> {
     if matches.is_present("file") {
         let user_input = matches.value_of("file").unwrap();
         let path = PathBuf::from(user_input);
+
         if !path.exists() {
             return Err(anyhow::Error::from(std::io::Error::new(std::io::ErrorKind::NotFound, "Path does not exist.")));
         }
+
         if !path.is_file() {
             return Err(anyhow::Error::new(PathError::NotAFile("path does not point to a file".to_string())));
         }
-        let mut buffer = vec![0; 4096];
+
+        let file = std::fs::File::open(path)?;
+        let mut reader = BufReader::new(file);
         let mut digest = Context::new(&ring::digest::SHA256);
+        let mut buffer = vec![0; 8192];
         loop {
-            let count = 0;
+            let count = reader.read(&mut buffer)?;
             if count == 0 {
                 break;
             }
-            digest.update(&mut buffer);
+            digest.update(&buffer[..count]);
         }
+
         let encoded_hash= HEXLOWER.encode(digest.finish().as_ref()); 
-        // let encoded_hash = BASE64.encode(&result);
         let is_equal = compare_hash(&encoded_hash, second_hash);
-        dbg!(&encoded_hash);
-        dbg!(second_hash);
+        dbg!(encoded_hash);
         dbg!(is_equal);
     } else if matches.is_present("hash") {
         let first_hash = matches.value_of("hash").unwrap();
         let is_equal = compare_hash(first_hash, second_hash);
-        dbg!(first_hash);
-        dbg!(second_hash);
-        dbg!(is_equal);
     } else {
         unreachable!();
     };

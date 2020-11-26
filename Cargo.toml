@@ -1,6 +1,6 @@
 [package]
 name = "compare_hash"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["arthmis <arthmis20@gmail.com>"]
 edition = "2018"
 
