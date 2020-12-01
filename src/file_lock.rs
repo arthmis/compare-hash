@@ -6,10 +6,11 @@
 #![allow(non_camel_case_types)]
 #![allow(nonstandard_style)]
 
+use cfg_if::cfg_if;
 use std::fs::{File, OpenOptions};
 use std::io;
 use std::path::Path;
-use cfg_if::cfg_if;
+use tracing::debug;
 
 cfg_if! {
     // We use `flock` rather than `fcntl` on Linux, because WSL1 does not support
@@ -185,7 +186,7 @@ cfg_if! {
 
                     debug!("attempting to acquire lock on lock file `{}`",
                            p.display());
-                    LockFileEx(file.as_raw_handle(),
+                    LockFileEx(file.as_raw_handle() as *mut winapi::ctypes::c_void,
                                dwFlags,
                                0,
                                0xFFFF_FFFF,
